@@ -261,14 +261,14 @@ This is done to avoid having to enter the encryption passphrase twice (once for 
 #### Create a keyfile and add it as LUKS key
 ```
 mkdir /root/secrets && chmod 700 /root/secrets
-head -c 64 /dev/urandom > /root/secrets/crypto_keyfile.bin && chmod 600 /root/secrets/crypto_keyfile.bin
-cryptsetup -v luksAddKey -i 1 /dev/nvme0n1p3 /root/secrets/crypto_keyfile.bin
+head -c 64 /dev/urandom > /root/secrets/cryptkey.bin && chmod 600 /root/secrets/cryptkey.bin
+cryptsetup -v luksAddKey -i 1 /dev/nvme0n1p3 /root/secrets/cryptkey.bin
 ```
 
 #### Add the keyfile to the initramfs image
 ```/etc/mkinitcpio.conf```
 ```
-FILES=(/root/secrets/crypto_keyfile.bin)
+FILES=(/root/secrets/cryptkey.bin)
 ```
 
 #### Recreate the initramfs image
@@ -279,7 +279,7 @@ mkinitcpio -p linux
 #### Set cryptkey= kernel parameter to unlock the LUKS partition with the keyfile using ```encrypt``` hook
 ```/etc/default/grub```
 ```
-GRUB_CMDLINE_LINUX="... cryptkey=rootfs:/root/secrets/crypto_keyfile.bin"
+GRUB_CMDLINE_LINUX="... cryptkey=rootfs:/root/secrets/cryptkey.bin"
 ```
 
 #### Regenerate GRUB config
