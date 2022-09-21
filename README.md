@@ -206,6 +206,14 @@ mkinitcpio -p linux
 passwd
 ```
 
+### Create user account
+#### Add a default user
+```
+useradd -m -g users -G wheel,storage,power,network,lp,docker,sudo -s /bin/bash someusername
+```
+#### Set password
+passwd someusername
+
 ### Boot loader
 #### Install GRUB
 ```
@@ -236,13 +244,11 @@ pacman -S efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/efi
 ```
 
-#### Enable microcode updates
+#### Enable microcode updates (You only need one of those two, depending on your CPU)
 ##### grub-mkconfig will automatically detect microcode updates and configure appropriately
 ```
-pacman -S intel-ucode
+pacman -S intel-ucode amd-ucode
 ```
-
-Use intel-ucode for Intel CPUs and amd-ucode for AMD CPUs.
 
 #### Generate GRUB's configuration file
 ```
@@ -271,18 +277,18 @@ FILES=(/root/secrets/crypto_keyfile.bin)
 mkinitcpio -p linux
 ```
 
-#### Set kernel parameters to unlock the LUKS partition with the keyfile using ```encrypt``` hook
+#### Set cryptkey= kernel parameter to unlock the LUKS partition with the keyfile using ```encrypt``` hook
 ```/etc/default/grub```
 ```
 GRUB_CMDLINE_LINUX="... cryptkey=rootfs:/root/secrets/crypto_keyfile.bin"
 ```
 
-#### Regenerate GRUB's configuration file
+#### Regenerate GRUB config
 ```
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-#### Restrict ```/boot``` permissions
+#### Restrict ```/boot``` directory permissions
 ```
 chmod 700 /boot
 ```
