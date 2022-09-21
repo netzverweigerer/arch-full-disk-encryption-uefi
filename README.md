@@ -1,7 +1,7 @@
 # Arch Linux Full-Disk Encryption Installation Guide 
 This guide provides instructions for an Arch Linux installation featuring full-disk encryption via LVM on LUKS and an encrypted boot partition (GRUB) for UEFI systems.
-
 Following the main installation are further instructions to harden against Evil Maid attacks via UEFI Secure Boot custom key enrollment and self-signed kernel and bootloader.
+This cheat sheet was forked from some excellent Gist by huntrar: https://gist.github.com/huntrar/e42aee630bee3295b2c671d098c81268 - big shouts going out.
 
 ## Preface
 You will find most of this information pulled from the [Arch Wiki](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Encrypted_boot_partition_(GRUB)) and other resources linked thereof.
@@ -147,10 +147,9 @@ nvme0n1        |  259:0  |  0  | 465.8G |  0  | disk  |            |
 ....└─vg-home  |  254:3  |  0  | 425.2G |  0  | lvm   | /home      |
 
 ### Time zone
-#### Set the time zone
-Replace `America/Los_Angeles` with your respective timezone found in `/usr/share/zoneinfo`
+#### Set time zone by symlinking zoneinfo file to /etc/localtime
 ```
-ln -sf /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 ```
 
 #### Run `hwclock` to generate ```/etc/adjtime```
@@ -299,14 +298,14 @@ exit
 reboot
 ```
 
-## Post-installation
+## Optional post-installation tasks
 Your system should now be fully installed, bootable, and fully encrypted.
 
 If you embedded the keyfile in the initramfs image, it should only require your encryption passphrase once to unlock to the system.
 
 For the standard Arch Linux post-installation steps, [RTFM](https://wiki.archlinux.org/index.php/General_recommendations).
 
-### (recommended) Hardening against Evil Maid attacks
+### Hardening against Evil Maid attacks
 With an encrypted boot partition, nobody can see or modify your kernel image or initramfs, but you would be still vulnerable to [Evil Maid](https://www.schneier.com/blog/archives/2009/10/evil_maid_attac.html) attacks.
 
 One possible solution is to use UEFI Secure Boot. Get rid of preloaded Secure Boot keys (you really don't want to trust Microsoft and OEM), enroll [your own Secure Boot keys](https://wiki.archlinux.org/index.php/Secure_Boot#Using_your_own_keys) and sign the GRUB boot loader with your keys. Evil Maid would be unable to boot modified boot loader (not signed by your keys) and the attack is prevented.
